@@ -1,0 +1,13 @@
+# Env files (contains secrets)
+.env
+.env.local
+.env.local.example
+
+# Build artifacts
+.git
+node_modules/
+.next/
+backend/main
+
+# OS
+.DS_Store
