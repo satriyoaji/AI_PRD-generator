@@ -1,0 +1,829 @@
+{
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "type": "object"
+      },
+      "GenerateRequest": {
+        "properties": {
+          "transcript_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transcript_id"
+        ],
+        "type": "object"
+      },
+      "Generation": {
+        "properties": {
+          "content": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "transcript_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "prd",
+              "stories",
+              "requirements",
+              "wireframe"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "transcript_id",
+          "type",
+          "content",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "HealthResponse": {
+        "properties": {
+          "service": {
+            "example": "prd-generator-api",
+            "type": "string"
+          },
+          "status": {
+            "example": "healthy",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "service"
+        ],
+        "type": "object"
+      },
+      "HistoryItem": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "transcript_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "transcript_title": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "prd",
+              "stories",
+              "requirements",
+              "wireframe"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "transcript_id",
+          "transcript_title",
+          "type",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "HistoryResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/HistoryItem"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "Transcript": {
+        "properties": {
+          "content": {
+            "description": "Uploaded transcript file contents converted to a text string.",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "content",
+          "created_at"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "API contracts for the AI Product Requirement \u0026 UI Generator backend.",
+    "title": "AI PRD Generator API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/api/generate/prd": {
+      "post": {
+        "description": "Generates a Product Requirements Document from a transcript.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "transcript_id": "2f4fb8e8-8b51-47d0-b699-3fc2d64c6f2d"
+              },
+              "schema": {
+                "$ref": "#/components/schemas/GenerateRequest"
+              }
+            }
+          },
+          "description": "JSON body containing the transcript ID.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "content": {
+                    "content": "# Product Requirements Document\n\n## Overview\nBuild a dashboard for product managers."
+                  },
+                  "created_at": "2026-06-06T10:31:00Z",
+                  "id": "b6a0ce5a-a43f-414f-83b4-8a908739bcfb",
+                  "transcript_id": "2f4fb8e8-8b51-47d0-b699-3fc2d64c6f2d",
+                  "type": "prd"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Generation"
+                }
+              }
+            },
+            "description": "Generated PRD content."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Invalid request body."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid request body."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Transcript not found."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Transcript not found."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Failed to generate PRD."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Failed to generate PRD."
+          }
+        },
+        "summary": "Generate PRD",
+        "tags": [
+          "Generation"
+        ]
+      }
+    },
+    "/api/generate/requirements": {
+      "post": {
+        "description": "Generates functional requirements from a transcript.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "transcript_id": "2f4fb8e8-8b51-47d0-b699-3fc2d64c6f2d"
+              },
+              "schema": {
+                "$ref": "#/components/schemas/GenerateRequest"
+              }
+            }
+          },
+          "description": "JSON body containing the transcript ID.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "content": {
+                    "content": "# Functional Requirements\n\n1. The system shall display dashboard metrics."
+                  },
+                  "created_at": "2026-06-06T10:33:00Z",
+                  "id": "a260d2d4-d2aa-4e55-8765-51d1530748af",
+                  "transcript_id": "2f4fb8e8-8b51-47d0-b699-3fc2d64c6f2d",
+                  "type": "requirements"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Generation"
+                }
+              }
+            },
+            "description": "Generated functional requirements."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Invalid request body."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid request body."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Transcript not found."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Transcript not found."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Failed to generate requirements."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Failed to generate requirements."
+          }
+        },
+        "summary": "Generate functional requirements",
+        "tags": [
+          "Generation"
+        ]
+      }
+    },
+    "/api/generate/stories": {
+      "post": {
+        "description": "Generates user stories from a transcript.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "transcript_id": "2f4fb8e8-8b51-47d0-b699-3fc2d64c6f2d"
+              },
+              "schema": {
+                "$ref": "#/components/schemas/GenerateRequest"
+              }
+            }
+          },
+          "description": "JSON body containing the transcript ID.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "content": {
+                    "stories": [
+                      {
+                        "acceptance_criteria": [
+                          "Dashboard displays key metrics",
+                          "Data refreshes successfully"
+                        ],
+                        "description": "As a product manager, I want to view dashboard metrics so I can track product performance.",
+                        "id": "US-001",
+                        "title": "View dashboard metrics"
+                      }
+                    ]
+                  },
+                  "created_at": "2026-06-06T10:32:00Z",
+                  "id": "6a2f4c1a-bd1d-4b8a-82ed-09c0ced1dc3d",
+                  "transcript_id": "2f4fb8e8-8b51-47d0-b699-3fc2d64c6f2d",
+                  "type": "stories"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Generation"
+                }
+              }
+            },
+            "description": "Generated user stories."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Invalid request body."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid request body."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Transcript not found."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Transcript not found."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Failed to generate user stories."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Failed to generate user stories."
+          }
+        },
+        "summary": "Generate user stories",
+        "tags": [
+          "Generation"
+        ]
+      }
+    },
+    "/api/generate/wireframe": {
+      "post": {
+        "description": "Generates UI/UX wireframe documentation from a transcript.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "transcript_id": "2f4fb8e8-8b51-47d0-b699-3fc2d64c6f2d"
+              },
+              "schema": {
+                "$ref": "#/components/schemas/GenerateRequest"
+              }
+            }
+          },
+          "description": "JSON body containing the transcript ID.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "content": {
+                    "description": "Dashboard layout with summary metrics and navigation.",
+                    "mermaid_code": "graph TD\n  A[Dashboard] --\u003e B[Metrics Cards]"
+                  },
+                  "created_at": "2026-06-06T10:34:00Z",
+                  "id": "6957633d-7716-46b7-8bd3-3d0d87e8a318",
+                  "transcript_id": "2f4fb8e8-8b51-47d0-b699-3fc2d64c6f2d",
+                  "type": "wireframe"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Generation"
+                }
+              }
+            },
+            "description": "Generated wireframe content."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Invalid request body."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid request body."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Transcript not found."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Transcript not found."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Failed to generate wireframe."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Failed to generate wireframe."
+          }
+        },
+        "summary": "Generate wireframe",
+        "tags": [
+          "Generation"
+        ]
+      }
+    },
+    "/api/history": {
+      "get": {
+        "description": "Returns recent generated content history items.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "items": [
+                    {
+                      "created_at": "2026-06-06T10:31:00Z",
+                      "id": "b6a0ce5a-a43f-414f-83b4-8a908739bcfb",
+                      "transcript_id": "2f4fb8e8-8b51-47d0-b699-3fc2d64c6f2d",
+                      "transcript_title": "Q1 Planning Meeting",
+                      "type": "prd"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/HistoryResponse"
+                }
+              }
+            },
+            "description": "Recent generation history."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Failed to get history."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Failed to get history."
+          }
+        },
+        "summary": "List generation history",
+        "tags": [
+          "History"
+        ]
+      }
+    },
+    "/api/history/{id}": {
+      "get": {
+        "description": "Returns generated content by generation ID.",
+        "parameters": [
+          {
+            "description": "UUID identifier.",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "content": {
+                    "content": "# Product Requirements Document\n\n## Overview\nBuild a dashboard for product managers."
+                  },
+                  "created_at": "2026-06-06T10:31:00Z",
+                  "id": "b6a0ce5a-a43f-414f-83b4-8a908739bcfb",
+                  "transcript_id": "2f4fb8e8-8b51-47d0-b699-3fc2d64c6f2d",
+                  "type": "prd"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Generation"
+                }
+              }
+            },
+            "description": "Generated content details."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Invalid generation ID."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid generation ID."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Generation not found."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Generation not found."
+          }
+        },
+        "summary": "Get generation by ID",
+        "tags": [
+          "History"
+        ]
+      }
+    },
+    "/api/transcript": {
+      "post": {
+        "description": "Creates a transcript by uploading a plain text `.txt` file or WebVTT `.vtt` file. The uploaded file must be sent as multipart form-data using the `content` file field. The file body is read and stored as a text string.",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "content": {
+                    "description": "Required uploaded transcript file. Permitted file extensions: `.txt`, `.vtt`.",
+                    "format": "binary",
+                    "type": "string"
+                  },
+                  "title": {
+                    "description": "Optional transcript title.",
+                    "example": "Q1 Planning Meeting",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "content"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "description": "Multipart form with optional `title` text field and required `content` file field. Only `.txt` and `.vtt` file extensions are permitted.",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "content": "WEBVTT\n\n00:00:00.000 --\u003e 00:00:05.000\nWe need a dashboard for product managers.",
+                  "created_at": "2026-06-06T10:30:00Z",
+                  "id": "2f4fb8e8-8b51-47d0-b699-3fc2d64c6f2d",
+                  "title": "Q1 Planning Meeting"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Transcript"
+                }
+              }
+            },
+            "description": "Created transcript. `content` contains the uploaded file contents converted to a string."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Missing file, empty file, or malformed multipart request."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Missing file, empty file, or malformed multipart request."
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Uploaded file extension is not `.txt` or `.vtt`."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Uploaded file extension is not `.txt` or `.vtt`."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Failed to read or save transcript."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Failed to read or save transcript."
+          }
+        },
+        "summary": "Create transcript from uploaded file",
+        "tags": [
+          "Transcripts"
+        ]
+      }
+    },
+    "/api/transcript/{id}": {
+      "get": {
+        "description": "Returns a previously created transcript.",
+        "parameters": [
+          {
+            "description": "UUID identifier.",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "content": "We need a dashboard for product managers.",
+                  "created_at": "2026-06-06T10:30:00Z",
+                  "id": "2f4fb8e8-8b51-47d0-b699-3fc2d64c6f2d",
+                  "title": "Q1 Planning Meeting"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Transcript"
+                }
+              }
+            },
+            "description": "Transcript details."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Invalid transcript ID."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid transcript ID."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Transcript not found."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Transcript not found."
+          }
+        },
+        "summary": "Get transcript by ID",
+        "tags": [
+          "Transcripts"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "description": "Returns the API health status.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "service": "prd-generator-api",
+                  "status": "healthy"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Service health status."
+          }
+        },
+        "summary": "Health check",
+        "tags": [
+          "Health"
+        ]
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "Local development",
+      "url": "http://localhost:8080"
+    }
+  ],
+  "tags": [
+    {
+      "description": "Service health endpoints",
+      "name": "Health"
+    },
+    {
+      "description": "Transcript upload and retrieval",
+      "name": "Transcripts"
+    },
+    {
+      "description": "AI generation endpoints",
+      "name": "Generation"
+    },
+    {
+      "description": "Generation history endpoints",
+      "name": "History"
+    }
+  ]
+}
