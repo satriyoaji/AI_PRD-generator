@@ -1,35 +1,40 @@
+version: "3.8"
+
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: ai_prd_db
+    environment:
+      POSTGRES_USER: prduser
+      POSTGRES_PASSWORD: prdpass
+      POSTGRES_DB: prd_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prduser -d prd_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    container_name: ai_prd_backend
     ports:
       - "8080:8080"
-    env_file:
-      - ./backend/.env
     environment:
-      - DATABASE_URL=postgresql://prduser:prdpass@db:5432/prd_db?sslmode=disable
+      PORT: "8080"
+      DATABASE_URL: "postgresql://prduser:prdpass@db:5432/prd_db?sslmode=disable"
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
 
-  db:
-    image: postgres:16-alpine
-    ports:
-      - "5433:5432"
-    environment:
-      - POSTGRES_USER=prduser
-      - POSTGRES_PASSWORD=prdpass
-      - POSTGRES_DB=prd_db
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U prduser -d prd_db"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
 volumes:
-  pgdata:
+  postgres_data:
+    driver: local
